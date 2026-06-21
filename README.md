@@ -6,25 +6,22 @@ A production-grade full-stack application for Instagram creator analytics.
 
 ```
 Praja/
-├── backend/        FastAPI + SQLAlchemy + Gemini AI
+├── backend/        FastAPI + SQLAlchemy + Rule-based AI Classifier
 └── frontend/       React 18 + Vite + Recharts
 ```
+
+## Launch Video
+
+Open [launch-video.html](launch-video.html) in your browser for a cinematic walkthrough of the product.
 
 ## Quick Start
 
 ### 1. Backend Setup
 
 ```bash
-cd backend
-
-# Copy env file
-cp .env.example .env
-
-# (Optional) Add your API keys to .env
-# APP_MODE=demo works without any keys
-
-pip install -r requirements.txt
-uvicorn backend.main:app --reload
+# From project root
+pip install -r backend/requirements.txt
+python -m uvicorn backend.main:app --reload
 ```
 
 Backend runs at: http://localhost:8000  
@@ -40,22 +37,28 @@ npm run dev
 
 Frontend runs at: http://localhost:5173
 
-## API Keys (Optional)
+## App Modes
+
+Set `APP_MODE` in `backend/.env`:
+
+| Mode | Description |
+|------|-------------|
+| `demo` | Realistic mock data, no API keys needed (default) |
+| `live` | Real Instagram data via Meta API + RapidAPI |
+
+## API Keys (for live mode only)
 
 | Key | Where to get | Used for |
 |-----|-------------|---------|
-| `GEMINI_API_KEY` | https://ai.google.dev/ | Comment AI classification |
 | `INSTAGRAM_ACCESS_TOKEN` | Facebook Developers | Real Instagram data |
 | `RAPIDAPI_KEY` | https://rapidapi.com | Instagram scraping fallback |
-
-> Without keys: `APP_MODE=demo` uses realistic generated data with pre-classified comments.
 
 ## Features
 
 - ✅ Profile: handle, bio, follower/following/post counts, verified status, ER
-- ✅ 12 recent posts: likes, comments, shares, saves per post
+- ✅ 12 recent posts: likes, comments, shares, saves per post (posts + reels)
 - ✅ Collab detection via `#ad`, `#sponsored`, `#collab` etc.
-- ✅ Comment classification (6 dimensions via Gemini AI)
+- ✅ Comment classification (6 dimensions — fully offline, no AI API needed)
   - Authenticity, Bot-likelihood, Political inclination
   - Relevance, Comment type, Language/script
 - ✅ Audience estimation: gender split, interest cohorts (10 niches), political lean
@@ -83,3 +86,5 @@ ER = (avg_likes + avg_comments + avg_saves) / follower_count × 100
 | Language | English / Hindi / Hinglish / Regional / Ambiguous |
 
 Hinglish comments flagged as ambiguous are marked `requires_manual_review = true`.
+
+Classification uses VADER sentiment analysis + rule-based patterns — runs fully offline with no external AI API.
