@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Praja — Launch Video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:#000;overflow:hidden}
+
+  /* ── Stage ─────────────────────────────────────────────────── */
+  #stage{
+    width:1920px;height:1080px;
+    position:relative;overflow:hidden;
+    background:#08060A;
+    transform-origin:top left;
+    font-family:'Noto Sans',sans-serif;
+  }
+
+  /* ── Scene base ─────────────────────────────────────────────── */
+  .scene{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity 0s;
+  }
+  .scene.active{opacity:1;pointer-events:auto;}
+
+  /* ── Cinematic bars ─────────────────────────────────────────── */
+  .bars-top,.bars-bottom{
+    position:fixed;left:0;width:100%;height:80px;
+    background:#000;z-index:9999;
+    transition:height 1s cubic-bezier(.77,0,.175,1);
+  }
+  .bars-top{top:0;}
+  .bars-bottom{bottom:0;}
+  .bars-open .bars-top,.bars-open .bars-bottom{height:0;}
+
+  /* ── Noise overlay ──────────────────────────────────────────── */
+  .noise{
+    position:absolute;inset:0;pointer-events:none;z-index:100;opacity:0.025;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:128px 128px;
+  }
+
+  /* ── Tricolor bar ───────────────────────────────────────────── */
+  .tricolor{display:flex;height:3px;width:100%;}
+  .tc-s{flex:1;background:#E8690A;}
+  .tc-w{flex:1;background:#fff;opacity:0.7;}
+  .tc-g{flex:1;background:#138808;}
+
+  /* ── SCENE 1: Title reveal ──────────────────────────────────── */
+  #s1{background:radial-gradient(ellipse at 50% 40%,#1A0A02 0%,#08060A 70%);}
+  #s1 .glow{
+    position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);
+    width:900px;height:400px;
+    background:radial-gradient(ellipse,rgba(232,105,10,0.22) 0%,transparent 70%);
+    border-radius:50%;filter:blur(60px);
+    animation:pulseGlow 3s ease-in-out infinite;
+  }
+  @keyframes pulseGlow{0%,100%{opacity:0.6;}50%{opacity:1;}}
+  #s1 .logo-wrap{position:relative;z-index:2;text-align:center;}
+  #s1 .logo{
+    font-family:'Rajdhani',sans-serif;font-size:180px;font-weight:700;
+    letter-spacing:0.2em;color:#fff;line-height:1;
+    text-shadow:0 0 80px rgba(232,105,10,0.6),0 0 200px rgba(232,105,10,0.2);
+  }
+  .logo span.s{color:#E8690A;}
+  #s1 .sub{
+    font-family:'Roboto Mono',monospace;font-size:22px;font-weight:400;
+    letter-spacing:0.28em;color:rgba(255,255,255,0.45);margin-top:16px;
+  }
+  #s1 .tricolor{width:440px;margin:28px auto 0;}
+  #s1 .line{
+    width:1px;height:0;background:rgba(255,255,255,0.15);
+    margin:0 auto 32px;
+    transition:height 1s ease;
+  }
+  #s1.active .line{height:60px;}
+  /* Fade-in text pieces */
+  .fadeWord{opacity:0;transform:translateY(20px);display:inline-block;
+    transition:opacity 0.6s ease,transform 0.6s ease;}
+  .fadeWord.in{opacity:1;transform:none;}
+
+  /* ── SCENE 2: The problem ───────────────────────────────────── */
+  #s2{background:#08060A;}
+  #s2 .stat-row{
+    display:flex;gap:120px;align-items:center;justify-content:center;
+  }
+  .big-stat{text-align:center;}
+  .big-stat .num{
+    font-family:'Roboto Mono',monospace;font-size:96px;font-weight:500;
+    line-height:1;
+    background:linear-gradient(135deg,#E8690A,#FF9933);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    opacity:0;transform:translateY(30px);
+    transition:opacity 0.7s ease,transform 0.7s ease;
+  }
+  .big-stat .num.in{opacity:1;transform:none;}
+  .big-stat .lbl{
+    font-family:'Noto Sans',sans-serif;font-size:18px;font-weight:400;
+    color:rgba(255,255,255,0.45);margin-top:12px;letter-spacing:0.04em;
+    opacity:0;transition:opacity 0.7s ease 0.3s;
+  }
+  .big-stat .lbl.in{opacity:1;}
+  #s2 .question{
+    font-family:'Rajdhani',sans-serif;font-size:52px;font-weight:600;
+    color:rgba(255,255,255,0.9);text-align:center;letter-spacing:0.02em;
+    margin-bottom:72px;
+    opacity:0;transform:translateY(16px);
+    transition:opacity 0.8s ease,transform 0.8s ease;
+  }
+  #s2 .question.in{opacity:1;transform:none;}
+
+  /* ── SCENE 3: App UI — search ───────────────────────────────── */
+  #s3{background:#0D0B0F;}
+  .device{
+    width:900px;
+    background:#F4F1E8;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 40px 120px rgba(0,0,0,0.9),0 0 0 1px rgba(255,255,255,0.08);
+    transform:perspective(1400px) rotateY(-4deg) rotateX(2deg);
+    opacity:0;transform-origin:center;
+    transition:opacity 0.8s ease,transform 0.8s ease;
+  }
+  .device.in{opacity:1;transform:perspective(1400px) rotateY(0deg) rotateX(0deg);}
+  .device-navbar{
+    background:#003366;padding:14px 24px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .device-dot{width:10px;height:10px;border-radius:50%;}
+  .device-logo{
+    font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
+    color:#fff;letter-spacing:0.06em;margin-left:8px;
+  }
+  .device-tag{font-family:'Roboto Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;margin-left:auto;}
+  .device-body{padding:40px 48px;}
+  .device-eyebrow{
+    display:inline-block;background:#003366;padding:5px 12px;border-radius:3px;
+    font-family:'Roboto Mono',monospace;font-size:10px;color:rgba(255,255,255,0.85);
+    letter-spacing:0.14em;margin-bottom:24px;
+  }
+  .device-h1{
+    font-family:'Rajdhani',sans-serif;font-size:52px;font-weight:700;
+    color:#1A1208;line-height:1.06;letter-spacing:0.01em;margin-bottom:4px;
+  }
+  .device-h1 .s{color:#E8690A;}
+  .device-sub{font-family:'Noto Sans',sans-serif;font-size:13px;color:#8A7D68;line-height:1.7;margin-bottom:28px;max-width:340px;}
+  .search-box{
+    display:flex;align-items:center;
+    border:1px solid rgba(26,18,8,0.18);border-radius:8px;
+    background:#F9F7F1;margin-bottom:12px;overflow:hidden;
+  }
+  .search-at{font-family:'Roboto Mono',monospace;font-size:16px;color:#8A7D68;padding:12px 4px 12px 14px;}
+  .search-input{
+    flex:1;font-family:'Noto Sans',sans-serif;font-size:13px;
+    color:#1A1208;padding:12px 14px 12px 6px;background:transparent;border:none;outline:none;
+  }
+  .search-cursor{display:inline-block;width:1px;height:14px;background:#E8690A;vertical-align:middle;animation:blink 1s step-end infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+  .search-btn{
+    width:100%;padding:13px;border:none;border-radius:8px;
+    background:#003366;color:#fff;
+    font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:0.06em;
+    cursor:pointer;
+  }
+  .demo-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;}
+  .chip{
+    padding:4px 10px;border-radius:4px;border:1px solid rgba(26,18,8,0.1);
+    font-family:'Roboto Mono',monospace;font-size:10px;color:#8A7D68;
+    background:#fff;
+  }
+  #s3 .scene-label{
+    position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
+    font-family:'Roboto Mono',monospace;font-size:13px;
+    color:rgba(255,255,255,0.3);letter-spacing:0.1em;
+  }
+
+  /* ── SCENE 4: Pipeline terminal ─────────────────────────────── */
+  #s4{background:radial-gradient(ellipse at 50% 50%,#0F0A14 0%,#08060A 100%);}
+  .terminal{
+    width:680px;background:#0C1322;border-radius:16px;overflow:hidden;
+    box-shadow:0 32px 100px rgba(0,0,0,0.9),0 0 0 1px rgba(255,255,255,0.06);
+    opacity:0;transform:translateY(30px);
+    transition:opacity 0.7s ease,transform 0.7s ease;
+  }
+  .terminal.in{opacity:1;transform:none;}
+  .term-bar{
+    background:rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.08);
+    padding:14px 20px;display:flex;align-items:center;gap:8px;
+  }
+  .term-dot{width:10px;height:10px;border-radius:50%;}
+  .term-title{font-family:'Roboto Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);margin-left:12px;letter-spacing:0.06em;}
+  .term-body{padding:28px 24px;}
+  .term-step{
+    display:flex;align-items:center;gap:14px;margin-bottom:14px;
+    font-family:'Roboto Mono',monospace;font-size:13px;
+    opacity:0.2;transition:opacity 0.5s ease;
+  }
+  .term-step.done{opacity:1;}
+  .term-step.active{opacity:0.85;}
+  .term-icon{width:16px;text-align:center;flex-shrink:0;}
+  .term-text{color:rgba(255,255,255,0.9);}
+  .term-check{color:#138808;}
+  .term-arrow{color:#C08A1A;}
+  .term-progress{margin-top:28px;}
+  .term-track{height:2px;background:rgba(255,255,255,0.08);border-radius:9999px;overflow:hidden;}
+  .term-fill{height:100%;background:linear-gradient(90deg,#E8690A,#C08A1A,#138808);border-radius:9999px;width:0%;transition:width 0.8s ease;}
+  .term-pct{font-family:'Roboto Mono',monospace;font-size:12px;color:#E8690A;float:right;margin-top:6px;}
+
+  /* ── SCENE 5: Dashboard metrics ─────────────────────────────── */
+  #s5{background:#08060A;}
+  .dash-wrap{width:1400px;}
+  .dash-section-label{
+    font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:0.14em;
+    color:rgba(255,255,255,0.35);margin-bottom:20px;display:flex;align-items:center;gap:10px;
+  }
+  .dash-section-label span{color:#E8690A;}
+  .metrics-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:28px;}
+  .mcard{
+    background:#111;border:1px solid rgba(255,255,255,0.06);
+    border-radius:10px;padding:20px;
+    border-top:2px solid transparent;
+    opacity:0;transform:translateY(16px);
+    transition:opacity 0.5s ease,transform 0.5s ease;
+  }
+  .mcard.in{opacity:1;transform:none;}
+  .mcard-lbl{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:0.12em;color:rgba(255,255,255,0.35);margin-bottom:12px;}
+  .mcard-val{font-family:'Roboto Mono',monospace;font-size:28px;font-weight:500;line-height:1;}
+  .mcard-sub{font-family:'Roboto Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);margin-top:6px;letter-spacing:0.04em;}
+  .chart-area{
+    background:#111;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px;
+    opacity:0;transition:opacity 0.8s ease 0.4s;
+  }
+  .chart-area.in{opacity:1;}
+  .chart-inner{height:120px;position:relative;overflow:hidden;}
+  .chart-line{position:absolute;bottom:0;left:0;width:0;height:100%;transition:width 2s ease;}
+
+  /* SVG chart */
+  .chart-svg{width:100%;height:120px;overflow:visible;}
+  .chart-path{
+    fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:2000;stroke-dashoffset:2000;
+    transition:stroke-dashoffset 2.5s ease;
+  }
+  .chart-path.in{stroke-dashoffset:0;}
+  .chart-fill{opacity:0;transition:opacity 1s ease 0.5s;}
+  .chart-fill.in{opacity:1;}
+
+  /* ── SCENE 6: Comment intelligence ──────────────────────────── */
+  #s6{background:#08060A;}
+  .intel-wrap{width:1000px;text-align:center;}
+  .intel-title{
+    font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:600;
+    letter-spacing:0.12em;color:rgba(255,255,255,0.4);margin-bottom:40px;
+    opacity:0;transition:opacity 0.6s ease;
+  }
+  .intel-title.in{opacity:1;}
+  .intel-bars{display:flex;flex-direction:column;gap:14px;}
+  .ibar{
+    display:flex;align-items:center;gap:20px;
+    opacity:0;transform:translateX(-20px);
+    transition:opacity 0.5s ease,transform 0.5s ease;
+  }
+  .ibar.in{opacity:1;transform:none;}
+  .ibar-lbl{font-family:'Roboto Mono',monospace;font-size:12px;color:rgba(255,255,255,0.5);width:200px;text-align:right;letter-spacing:0.04em;}
+  .ibar-track{flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;}
+  .ibar-fill{height:100%;border-radius:99px;width:0%;transition:width 1.2s cubic-bezier(.22,1,.36,1);}
+  .ibar-val{font-family:'Roboto Mono',monospace;font-size:12px;font-weight:500;width:48px;letter-spacing:0.02em;}
+
+  /* ── SCENE 7: CTA ───────────────────────────────────────────── */
+  #s7{background:radial-gradient(ellipse at 50% 45%,#100808 0%,#08060A 70%);}
+  #s7 .glow2{
+    position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
+    width:700px;height:300px;
+    background:radial-gradient(ellipse,rgba(232,105,10,0.18) 0%,transparent 70%);
+    filter:blur(50px);border-radius:50%;
+    animation:pulseGlow 4s ease-in-out infinite;
+  }
+  #s7 .cta-wrap{position:relative;z-index:2;text-align:center;}
+  #s7 .cta-eye{
+    font-family:'Roboto Mono',monospace;font-size:12px;letter-spacing:0.18em;
+    color:rgba(255,255,255,0.3);margin-bottom:20px;
+    opacity:0;transition:opacity 0.6s ease;
+  }
+  #s7 .cta-eye.in{opacity:1;}
+  #s7 .cta-h{
+    font-family:'Rajdhani',sans-serif;font-size:72px;font-weight:700;
+    letter-spacing:0.04em;color:#fff;line-height:1.1;
+    margin-bottom:12px;
+    opacity:0;transform:translateY(20px);
+    transition:opacity 0.8s ease 0.1s,transform 0.8s ease 0.1s;
+  }
+  #s7 .cta-h.in{opacity:1;transform:none;}
+  #s7 .cta-sub{
+    font-family:'Noto Sans',sans-serif;font-size:20px;color:rgba(255,255,255,0.45);
+    margin-bottom:40px;
+    opacity:0;transition:opacity 0.8s ease 0.3s;
+  }
+  #s7 .cta-sub.in{opacity:1;}
+  #s7 .cta-btn{
+    display:inline-block;
+    background:#E8690A;color:#fff;
+    font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.08em;
+    padding:18px 52px;border-radius:8px;
+    box-shadow:0 8px 40px rgba(232,105,10,0.5);
+    opacity:0;transform:scale(0.9);
+    transition:opacity 0.6s ease 0.5s,transform 0.6s ease 0.5s;
+  }
+  #s7 .cta-btn.in{opacity:1;transform:scale(1);}
+  #s7 .cta-logo{
+    position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
+    font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
+    letter-spacing:0.12em;color:rgba(255,255,255,0.2);
+    opacity:0;transition:opacity 0.6s ease 0.8s;
+  }
+  #s7 .cta-logo.in{opacity:1;}
+  #s7 .tricolor{width:320px;margin:28px auto 0;}
+
+  /* ── Progress dots ──────────────────────────────────────────── */
+  #dots{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    display:flex;gap:8px;z-index:1000;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s,transform 0.3s;}
+  .dot.active{background:#E8690A;transform:scale(1.4);}
+
+  /* ── Scene transition overlay ───────────────────────────────── */
+  #flash{
+    position:fixed;inset:0;background:#000;z-index:9000;
+    opacity:0;pointer-events:none;transition:opacity 0.35s ease;
+  }
+  #flash.on{opacity:1;}
+
+  /* ── Skip button ────────────────────────────────────────────── */
+  #skip{
+    position:fixed;top:24px;right:32px;z-index:9999;
+    font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:0.1em;
+    color:rgba(255,255,255,0.3);cursor:pointer;padding:8px;
+    border:1px solid rgba(255,255,255,0.1);border-radius:4px;
+    transition:color 0.2s,border-color 0.2s;
+  }
+  #skip:hover{color:#fff;border-color:rgba(255,255,255,0.3);}
+
+  /* ── Counter animation ──────────────────────────────────────── */
+  .counter{display:inline-block;}
+
+  /* ── Blinking record dot ────────────────────────────────────── */
+  #rec{
+    position:fixed;top:24px;left:28px;z-index:9999;
+    display:flex;align-items:center;gap:7px;
+    opacity:0;transition:opacity 0.4s ease;
+  }
+  #rec.show{opacity:1;}
+  .rec-dot{width:8px;height:8px;border-radius:50%;background:#E8294A;animation:blink 1.2s step-end infinite;}
+  .rec-txt{font-family:'Roboto Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;}
+
+</style>
+</head>
+<body>
+
+<!-- Cinematic bars -->
+<div class="bars-top" id="bt"></div>
+<div class="bars-bottom" id="bb"></div>
+<div id="flash"></div>
+
+<!-- Record indicator -->
+<div id="rec"><span class="rec-dot"></span><span class="rec-txt">REC</span></div>
+
+<!-- Skip -->
+<div id="skip" onclick="skip()">SKIP →</div>
+
+<!-- Progress dots -->
+<div id="dots"></div>
+
+<!-- ═══════════════════════════ STAGE ═══════════════════════════ -->
+<div id="stage">
+  <div class="noise"></div>
+
+  <!-- SCENE 1: Logo reveal -->
+  <div class="scene" id="s1">
+    <div class="glow"></div>
+    <div class="logo-wrap">
+      <div class="line" id="line1"></div>
+      <div class="logo">
+        <span class="fadeWord" id="lp">P</span><span class="fadeWord" id="lr">R</span><span class="fadeWord s" id="la">A</span><span class="fadeWord" id="lj">J</span><span class="fadeWord" id="la2">A</span>
+      </div>
+      <div class="tricolor" style="margin:24px auto 0;width:440px;"></div>
+      <div class="sub" id="sub1">INSTAGRAM INTELLIGENCE PLATFORM</div>
+    </div>
+  </div>
+
+  <!-- SCENE 2: The problem statement -->
+  <div class="scene" id="s2">
+    <div class="question" id="q1">How do you know what people <em style="color:#E8690A;font-style:normal;">really</em> think?</div>
+    <div class="stat-row">
+      <div class="big-stat">
+        <div class="num counter" id="c1" data-target="68">0</div>
+        <div class="lbl">% of "positive" comments<br>may be bot-generated</div>
+      </div>
+      <div style="width:1px;height:80px;background:rgba(255,255,255,0.08)"></div>
+      <div class="big-stat">
+        <div class="num counter" id="c2" data-target="3">0</div>
+        <div class="lbl">engagement dimensions<br>are actually measured</div>
+      </div>
+      <div style="width:1px;height:80px;background:rgba(255,255,255,0.08)"></div>
+      <div class="big-stat">
+        <div class="num" id="c3" style="font-size:72px;">∞</div>
+        <div class="lbl">creators — no systematic<br>way to evaluate them</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 3: App search screen -->
+  <div class="scene" id="s3">
+    <div class="device" id="dev1">
+      <div class="tricolor" style="height:3px;"></div>
+      <div class="device-navbar">
+        <div class="device-dot" style="background:#E8690A;"></div>
+        <div class="device-dot" style="background:#C08A1A;"></div>
+        <div class="device-dot" style="background:#138808;"></div>
+        <div class="device-logo">PRAJA</div>
+        <div class="device-tag">DEMO MODE ACTIVE</div>
+      </div>
+      <div class="device-body">
+        <div class="device-eyebrow">RASHTRIYA BHAVANA VISHLESHAN MANCH</div>
+        <div class="device-h1">Decode what<br>citizens <span class="s">feel.</span></div>
+        <div class="device-sub">Enter any Instagram handle. Get engagement authenticity, sentiment breakdown, and audience intelligence in seconds.</div>
+        <div class="search-box">
+          <div class="search-at">@</div>
+          <div class="search-input" id="typeTarget">
+            <span id="typeText"></span><span class="search-cursor" id="cur"></span>
+          </div>
+        </div>
+        <button class="search-btn">विश्लेषण शुरू करें &nbsp;→</button>
+        <div class="demo-chips" style="margin-top:16px;">
+          <div class="chip">@virat.kohli</div>
+          <div class="chip">@narendramodi</div>
+          <div class="chip">@priyankachopra</div>
+          <div class="chip">@bhuvan.bam22</div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-label">ENTER ANY INSTAGRAM HANDLE</div>
+  </div>
+
+  <!-- SCENE 4: Pipeline running -->
+  <div class="scene" id="s4">
+    <div class="terminal" id="term">
+      <div class="term-bar">
+        <div class="term-dot" style="background:#E8690A;"></div>
+        <div class="term-dot" style="background:#C08A1A;"></div>
+        <div class="term-dot" style="background:#138808;"></div>
+        <div class="term-title">praja — analysis pipeline — @virat.kohli</div>
+      </div>
+      <div class="term-body">
+        <div class="term-step" id="ts0"><span class="term-icon term-check">✓</span><span class="term-text">Fetching Instagram profile</span></div>
+        <div class="term-step" id="ts1"><span class="term-icon term-check">✓</span><span class="term-text">Loading 12 recent posts</span></div>
+        <div class="term-step" id="ts2"><span class="term-icon term-arrow">›</span><span class="term-text">AI comment classification</span></div>
+        <div class="term-step" id="ts3"><span class="term-icon">·</span><span class="term-text">Computing engagement metrics</span></div>
+        <div class="term-step" id="ts4"><span class="term-icon">·</span><span class="term-text">Estimating audience demographics</span></div>
+        <div class="term-step" id="ts5"><span class="term-icon">·</span><span class="term-text">Analysis complete</span></div>
+        <div class="term-progress">
+          <div class="term-track"><div class="term-fill" id="tfill"></div></div>
+          <div class="term-pct" id="tpct">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 5: Dashboard metrics -->
+  <div class="scene" id="s5">
+    <div class="dash-wrap">
+      <div class="dash-section-label"><span>//</span> KEY METRICS — @virat.kohli</div>
+      <div class="metrics-grid" id="mgrid">
+        <div class="mcard" style="border-top-color:#E8690A;" data-delay="0">
+          <div class="mcard-lbl">AVG LIKES</div>
+          <div class="mcard-val" style="color:#E8690A;">2.8M</div>
+          <div class="mcard-sub">per post</div>
+        </div>
+        <div class="mcard" style="border-top-color:#003366;" data-delay="80">
+          <div class="mcard-lbl">AVG COMMENTS</div>
+          <div class="mcard-val" style="color:#6699CC;">24.1K</div>
+          <div class="mcard-sub">per post</div>
+        </div>
+        <div class="mcard" style="border-top-color:#138808;" data-delay="160">
+          <div class="mcard-lbl">AVG SAVES</div>
+          <div class="mcard-val" style="color:#138808;">318K</div>
+          <div class="mcard-sub">per post</div>
+        </div>
+        <div class="mcard" style="border-top-color:#1565C0;" data-delay="240">
+          <div class="mcard-lbl">AVG SHARES</div>
+          <div class="mcard-val" style="color:#4A90D9;">142K</div>
+          <div class="mcard-sub">per post</div>
+        </div>
+        <div class="mcard" style="border-top-color:#C08A1A;" data-delay="320">
+          <div class="mcard-lbl">ENGAGEMENT RATE</div>
+          <div class="mcard-val" style="color:#C08A1A;">8.34%</div>
+          <div class="mcard-sub">excellent</div>
+        </div>
+        <div class="mcard" style="border-top-color:#138808;" data-delay="400">
+          <div class="mcard-lbl">GENUINE COMMENTS</div>
+          <div class="mcard-val" style="color:#138808;">82.4%</div>
+          <div class="mcard-sub">healthy</div>
+        </div>
+      </div>
+      <!-- Simple SVG chart -->
+      <div class="chart-area" id="chartArea">
+        <div class="dash-section-label" style="margin-bottom:16px;"><span>//</span> ENGAGEMENT PER POST</div>
+        <svg class="chart-svg" viewBox="0 0 1400 120" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#E8690A" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#E8690A" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="lg2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#138808" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#138808" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Area fills -->
+          <path class="chart-fill" id="fill1" fill="url(#lg1)"
+            d="M0,90 C100,80 200,60 300,50 S500,20 600,30 S800,15 900,25 S1100,10 1200,20 L1200,120 L0,120 Z"/>
+          <path class="chart-fill" id="fill2" fill="url(#lg2)"
+            d="M0,100 C100,95 200,85 300,80 S500,70 600,65 S800,55 900,60 S1100,50 1200,55 L1200,120 L0,120 Z"/>
+          <!-- Lines -->
+          <path class="chart-path" id="line-likes" stroke="#E8690A"
+            d="M0,90 C100,80 200,60 300,50 S500,20 600,30 S800,15 900,25 S1100,10 1200,20"/>
+          <path class="chart-path" id="line-saves" stroke="#138808"
+            d="M0,100 C100,95 200,85 300,80 S500,70 600,65 S800,55 900,60 S1100,50 1200,55"/>
+          <path class="chart-path" id="line-comments" stroke="#6699CC"
+            d="M0,108 C100,106 200,104 300,102 S500,100 600,98 S800,94 900,97 S1100,92 1200,94"/>
+        </svg>
+        <div style="display:flex;gap:24px;margin-top:8px;">
+          <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:#E8690A;">● Likes</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:#138808;">● Saves</span>
+          <span style="font-family:'Roboto Mono',monospace;font-size:10px;color:#6699CC;">● Comments</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 6: Comment intelligence bars -->
+  <div class="scene" id="s6">
+    <div class="intel-wrap">
+      <div class="intel-title" id="ititle">COMMENT INTELLIGENCE</div>
+      <div class="intel-bars">
+        <div class="ibar" id="ib0">
+          <div class="ibar-lbl">GENUINE</div>
+          <div class="ibar-track"><div class="ibar-fill" style="background:#138808;" data-w="82"></div></div>
+          <div class="ibar-val" style="color:#138808;">82%</div>
+        </div>
+        <div class="ibar" id="ib1">
+          <div class="ibar-lbl">BOT LIKELIHOOD</div>
+          <div class="ibar-track"><div class="ibar-fill" style="background:#E8690A;" data-w="12"></div></div>
+          <div class="ibar-val" style="color:#E8690A;">12%</div>
+        </div>
+        <div class="ibar" id="ib2">
+          <div class="ibar-lbl">POSITIVE SENTIMENT</div>
+          <div class="ibar-track"><div class="ibar-fill" style="background:#6699CC;" data-w="74"></div></div>
+          <div class="ibar-val" style="color:#6699CC;">74%</div>
+        </div>
+        <div class="ibar" id="ib3">
+          <div class="ibar-lbl">NEUTRAL</div>
+          <div class="ibar-track"><div class="ibar-fill" style="background:#C08A1A;" data-w="18"></div></div>
+          <div class="ibar-val" style="color:#C08A1A;">18%</div>
+        </div>
+        <div class="ibar" id="ib4">
+          <div class="ibar-lbl">HINDI / REGIONAL</div>
+          <div class="ibar-track"><div class="ibar-fill" style="background:#8A4FBF;" data-w="61"></div></div>
+          <div class="ibar-val" style="color:#8A4FBF;">61%</div>
+        </div>
+        <div class="ibar" id="ib5">
+          <div class="ibar-lbl">POLITICALLY ALIGNED</div>
+          <div class="ibar-track"><div class="ibar-fill" style="background:#FF9933;" data-w="29"></div></div>
+          <div class="ibar-val" style="color:#FF9933;">29%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 7: CTA -->
+  <div class="scene" id="s7">
+    <div class="glow2"></div>
+    <div class="cta-wrap">
+      <div class="cta-eye" id="ceye">// INTRODUCING</div>
+      <div class="cta-h" id="ch">PRAJA</div>
+      <div class="tricolor" style="width:360px;margin:0 auto 28px;"></div>
+      <div class="cta-sub" id="csub">The intelligence layer for public sentiment.</div>
+      <div class="cta-btn" id="cbtn">TRY PRAJA →</div>
+    </div>
+    <div class="cta-logo" id="clogo">INSTAGRAM INTELLIGENCE PLATFORM</div>
+  </div>
+
+</div><!-- /stage -->
+
+<script>
+// ── Scale stage to viewport ──────────────────────────────────────
+function scale(){
+  const s=document.getElementById('stage');
+  const sx=window.innerWidth/1920,sy=window.innerHeight/1080;
+  const f=Math.min(sx,sy);
+  s.style.transform=`scale(${f})`;
+  s.style.marginLeft=`${(window.innerWidth-1920*f)/2}px`;
+  s.style.marginTop=`${(window.innerHeight-1080*f)/2}px`;
+}
+scale();window.addEventListener('resize',scale);
+
+// ── Scene timeline config ────────────────────────────────────────
+const SCENES=[
+  {id:'s1', dur:4200},
+  {id:'s2', dur:4500},
+  {id:'s3', dur:5000},
+  {id:'s4', dur:5000},
+  {id:'s5', dur:5500},
+  {id:'s6', dur:4800},
+  {id:'s7', dur:5000},
+];
+let cur=0,timer=null,running=false;
+
+// ── Dots ─────────────────────────────────────────────────────────
+const dotsEl=document.getElementById('dots');
+SCENES.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot';d.id='dot'+i;
+  d.onclick=()=>goScene(i);
+  dotsEl.appendChild(d);
+});
+
+// ── Flash transition ─────────────────────────────────────────────
+const flash=document.getElementById('flash');
+function flashTransition(cb){
+  flash.classList.add('on');
+  setTimeout(()=>{cb();flash.classList.remove('on');},350);
+}
+
+// ── Go to scene ──────────────────────────────────────────────────
+function goScene(n){
+  clearTimeout(timer);
+  flashTransition(()=>{
+    document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));
+    cur=n;
+    const sc=document.getElementById(SCENES[n].id);
+    sc.classList.add('active');
+    document.getElementById('dot'+n).classList.add('active');
+    initScene(n);
+    if(n<SCENES.length-1){
+      timer=setTimeout(()=>goScene(n+1),SCENES[n].dur);
+    }
+  });
+}
+function skip(){
+  if(cur<SCENES.length-1)goScene(cur+1);
+}
+
+// ── Counters ──────────────────────────────────────────────────────
+function animCounter(el,target,dur){
+  let start=null;
+  function step(ts){
+    if(!start)start=ts;
+    const p=Math.min((ts-start)/dur,1);
+    el.textContent=Math.round(p*target);
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ── Typewriter ────────────────────────────────────────────────────
+function typeText(el,text,speed=70,cb){
+  let i=0;
+  el.textContent='';
+  function next(){
+    if(i<text.length){el.textContent+=text[i++];setTimeout(next,speed);}
+    else if(cb)setTimeout(cb,400);
+  }
+  next();
+}
+
+// ── Pipeline animation ─────────────────────────────────────────
+function runPipeline(){
+  const steps=[0,1,2,3,4,5];
+  const fill=document.getElementById('tfill');
+  const pct=document.getElementById('tpct');
+  const targets=[15,30,55,72,88,100];
+  let si=0;
+  // Mark first two as done immediately
+  document.getElementById('ts0').classList.add('done');
+  document.getElementById('ts1').classList.add('done');
+
+  function nextStep(){
+    if(si>=steps.length)return;
+    const el=document.getElementById('ts'+si);
+    el.classList.add(si<=1?'done':'active');
+    if(si>1){
+      const prev=document.getElementById('ts'+(si-1));
+      if(prev&&si>2)prev.classList.remove('active'),prev.classList.add('done');
+    }
+    const t=targets[si];
+    fill.style.width=t+'%';
+    pct.textContent=t+'%';
+    si++;
+    if(si<steps.length)setTimeout(nextStep,700);
+    else{
+      // Mark all done
+      steps.forEach(i=>{
+        const e=document.getElementById('ts'+i);
+        e.classList.remove('active');e.classList.add('done');
+      });
+    }
+  }
+  setTimeout(nextStep,400);
+}
+
+// ── Chart animation ────────────────────────────────────────────
+function runChart(){
+  setTimeout(()=>{
+    document.getElementById('chartArea').classList.add('in');
+    setTimeout(()=>{
+      document.querySelectorAll('.chart-path').forEach(p=>p.classList.add('in'));
+      document.querySelectorAll('.chart-fill').forEach(f=>f.classList.add('in'));
+    },200);
+  },500);
+}
+
+// ── Scene initializers ─────────────────────────────────────────
+function initScene(n){
+  switch(n){
+    case 0: initS1();break;
+    case 1: initS2();break;
+    case 2: initS3();break;
+    case 3: initS4();break;
+    case 4: initS5();break;
+    case 5: initS6();break;
+    case 6: initS7();break;
+  }
+}
+
+function initS1(){
+  // Stagger letter reveal
+  const letters=['lp','lr','la','lj','la2'];
+  letters.forEach((id,i)=>{
+    setTimeout(()=>document.getElementById(id).classList.add('in'),300+i*120);
+  });
+  // Fade sub
+  setTimeout(()=>{
+    const s=document.getElementById('sub1');
+    s.style.opacity='0';s.style.transition='opacity 0.8s ease';
+    s.style.opacity='0';
+    requestAnimationFrame(()=>{setTimeout(()=>s.style.opacity='0.45',50);});
+  },1200);
+}
+
+function initS2(){
+  setTimeout(()=>document.getElementById('q1').classList.add('in'),200);
+  setTimeout(()=>{
+    const c1=document.getElementById('c1');
+    c1.classList.add('in');
+    const l1=c1.nextElementSibling;l1.classList.add('in');
+    animCounter(c1,68,1200);
+  },700);
+  setTimeout(()=>{
+    const c2=document.getElementById('c2');
+    c2.classList.add('in');
+    c2.nextElementSibling.classList.add('in');
+    animCounter(c2,3,800);
+  },900);
+  setTimeout(()=>{
+    const c3=document.getElementById('c3');
+    c3.classList.add('in');
+    c3.nextElementSibling.classList.add('in');
+  },1100);
+}
+
+function initS3(){
+  setTimeout(()=>document.getElementById('dev1').classList.add('in'),200);
+  setTimeout(()=>{
+    typeText(document.getElementById('typeText'),'virat.kohli',80);
+  },1000);
+}
+
+function initS4(){
+  setTimeout(()=>{
+    document.getElementById('term').classList.add('in');
+    setTimeout(runPipeline,600);
+  },200);
+}
+
+function initS5(){
+  // Stagger metric cards
+  const cards=document.querySelectorAll('#mgrid .mcard');
+  cards.forEach((c,i)=>{
+    const d=parseInt(c.dataset.delay)||0;
+    setTimeout(()=>c.classList.add('in'),200+d);
+  });
+  runChart();
+}
+
+function initS6(){
+  setTimeout(()=>document.getElementById('ititle').classList.add('in'),200);
+  const bars=['ib0','ib1','ib2','ib3','ib4','ib5'];
+  bars.forEach((id,i)=>{
+    setTimeout(()=>{
+      const el=document.getElementById(id);
+      el.classList.add('in');
+      const fill=el.querySelector('.ibar-fill');
+      setTimeout(()=>fill.style.width=fill.dataset.w+'%',100);
+    },400+i*200);
+  });
+}
+
+function initS7(){
+  setTimeout(()=>document.getElementById('ceye').classList.add('in'),200);
+  setTimeout(()=>document.getElementById('ch').classList.add('in'),400);
+  setTimeout(()=>document.getElementById('csub').classList.add('in'),700);
+  setTimeout(()=>document.getElementById('cbtn').classList.add('in'),900);
+  setTimeout(()=>document.getElementById('clogo').classList.add('in'),1100);
+}
+
+// ── Boot sequence ──────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  // Open cinematic bars
+  setTimeout(()=>{
+    document.getElementById('bt').classList.add('bars-open');
+    document.getElementById('bb').classList.add('bars-open');
+  },300);
+
+  // Show rec indicator
+  setTimeout(()=>document.getElementById('rec').classList.add('show'),800);
+
+  // Start first scene
+  setTimeout(()=>goScene(0),600);
+});
+</script>
+</body>
+</html>

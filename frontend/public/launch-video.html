@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Praja — How It Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:#FF9933;overflow:hidden;}
+
+#stage{width:1920px;height:1080px;position:fixed;overflow:hidden;transform-origin:top left;}
+
+/* Fade overlay — NO default transition, controlled via JS */
+#fov{position:fixed;inset:0;z-index:900;opacity:0;pointer-events:none;}
+
+/* Progress + dots */
+#pgb{position:fixed;bottom:0;left:0;z-index:999;height:3px;width:0%;transition:width linear;}
+#dots{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:999;}
+.dot{width:6px;height:6px;border-radius:50%;transition:all 0.3s;cursor:pointer;}
+#skip{position:fixed;top:28px;right:40px;z-index:999;font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;padding:6px 14px;border:1px solid;border-radius:4px;transition:all 0.2s;}
+
+/* Scenes — no default transition, controlled via JS for precision */
+.scene{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;}
+.scene.active{opacity:1;}
+
+/* Animation helpers */
+.fu{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s cubic-bezier(.22,1,.36,1);}
+.fu.in{opacity:1;transform:none;}
+.fi{opacity:0;transition:opacity 0.6s ease;}
+.fi.in{opacity:1;}
+.word{display:inline-block;opacity:0;transform:translateY(20px);transition:opacity 0.45s ease,transform 0.45s cubic-bezier(.22,1,.36,1);}
+.word.in{opacity:1;transform:none;}
+
+/* ═══ S1: Logo — ORANGE bg ═════════════════════════ */
+#s1{background:#FF9933;}
+#s1 .logo-text{font-family:'Rajdhani',sans-serif;font-size:200px;font-weight:700;letter-spacing:0.1em;color:#fff;line-height:1;text-align:center;}
+#s1 .logo-rule{width:0;height:3px;background:rgba(255,255,255,0.4);margin:18px auto;border-radius:2px;transition:width 0.8s ease;}
+#s1 .logo-rule.in{width:480px;}
+#s1 .logo-sub{font-family:'Noto Sans',sans-serif;font-size:20px;font-weight:300;color:rgba(255,255,255,0.6);letter-spacing:0.06em;text-align:center;}
+
+/* ═══ S2: Tagline — WHITE bg ═══════════════════════ */
+#s2{background:#fff;gap:0;}
+#s2 .eyebrow{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:0.18em;color:rgba(26,14,4,0.45);margin-bottom:18px;text-align:center;}
+#s2 .tline{font-family:'Rajdhani',sans-serif;font-size:100px;font-weight:700;letter-spacing:-0.01em;color:#1A0E04;line-height:1.06;text-align:center;}
+#s2 .acc{color:#FF9933;}
+#s2 .tsub{font-family:'Noto Sans',sans-serif;font-size:22px;font-weight:300;color:rgba(26,14,4,0.45);margin-top:28px;text-align:center;max-width:700px;line-height:1.7;}
+
+/* ═══ S3: Steps — WHITE bg ═════════════════════════ */
+#s3{background:#fff;}
+#s3 .s3e{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:0.18em;color:rgba(26,14,4,0.45);text-align:center;margin-bottom:12px;}
+#s3 .s3h{font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;color:#1A0E04;text-align:center;letter-spacing:0.02em;margin-bottom:0;}
+#s3 .steps{display:flex;gap:2px;width:1400px;margin-top:36px;}
+.scard{flex:1;background:#fff;border:1.5px solid rgba(255,153,51,0.12);border-top:3px solid #FF9933;border-radius:10px;padding:44px 36px;opacity:0;transform:translateY(18px);transition:opacity 0.5s ease,transform 0.5s cubic-bezier(.22,1,.36,1);}
+.scard.in{opacity:1;transform:none;}
+.sn{font-family:'Roboto Mono',monospace;font-size:44px;font-weight:400;color:#FF9933;line-height:1;margin-bottom:16px;}
+.st{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#1A0E04;margin-bottom:10px;letter-spacing:0.02em;}
+.sd{font-family:'Noto Sans',sans-serif;font-size:14px;color:rgba(26,14,4,0.48);line-height:1.75;}
+
+/* ═══ S4: App UI — pale tint ═══════════════════════ */
+#s4{background:#FFF8F2;}
+.browser{width:1100px;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,153,51,0.12),0 32px 80px rgba(255,153,51,0.14);opacity:0;transform:translateY(28px);transition:opacity 0.7s ease,transform 0.7s cubic-bezier(.22,1,.36,1);}
+.browser.in{opacity:1;transform:none;}
+.bchrome{background:#F5F0EA;border-bottom:1px solid rgba(255,153,51,0.1);padding:14px 20px;display:flex;align-items:center;gap:10px;}
+.bdot{width:11px;height:11px;border-radius:50%;}
+.burl{flex:1;margin:0 14px;background:rgba(255,153,51,0.06);border-radius:5px;padding:6px 14px;font-family:'Roboto Mono',monospace;font-size:12px;color:rgba(26,14,4,0.3);}
+.anav{background:#FF9933;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+.anav-logo{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:0.06em;}
+.anav-tag{font-family:'Roboto Mono',monospace;font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.1em;}
+.acontent{display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;padding:48px 36px 40px;align-items:center;background:#fff;}
+.aey{display:inline-block;background:rgba(255,153,51,0.08);border:1px solid rgba(255,153,51,0.2);padding:4px 10px;border-radius:3px;font-family:'Roboto Mono',monospace;font-size:9px;color:#FF9933;letter-spacing:0.14em;margin-bottom:20px;}
+.ah{font-family:'Rajdhani',sans-serif;font-size:46px;font-weight:700;color:#1A0E04;line-height:1.06;letter-spacing:0.01em;margin-bottom:18px;}
+.ah .ao{color:#FF9933;}
+.ap{font-family:'Noto Sans',sans-serif;font-size:13px;color:rgba(26,14,4,0.5);line-height:1.75;max-width:300px;}
+.acard{background:#fff;border:1px solid rgba(255,153,51,0.15);border-radius:12px;padding:24px;box-shadow:0 4px 20px rgba(255,153,51,0.08);}
+.acard-lbl{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#FF9933;margin-bottom:14px;}
+.asearch{display:flex;align-items:center;border:1.5px solid rgba(255,153,51,0.25);border-radius:8px;background:#fff;margin-bottom:10px;}
+.aat{font-family:'Roboto Mono',monospace;font-size:15px;color:#FF9933;padding:11px 4px 11px 12px;}
+.ainp{font-family:'Noto Sans',sans-serif;font-size:13px;color:#1A0E04;padding:11px 12px 11px 4px;background:transparent;border:none;outline:none;flex:1;}
+.acur{display:inline-block;width:1px;height:13px;background:#FF9933;vertical-align:middle;animation:blink 1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.abtn{width:100%;padding:12px;border:none;border-radius:8px;background:#FF9933;color:#fff;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:0.06em;cursor:pointer;}
+.achips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;}
+.achip{font-family:'Roboto Mono',monospace;font-size:9px;padding:3px 8px;border:1px solid rgba(255,153,51,0.18);border-radius:4px;color:rgba(26,14,4,0.4);background:rgba(255,153,51,0.03);}
+
+/* ═══ S5: Results — WHITE bg ═══════════════════════ */
+#s5{background:#fff;}
+#s5 .results{width:1400px;}
+.rhead{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;}
+.rt{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;color:#1A0E04;letter-spacing:0.02em;}
+.rhandle{font-family:'Roboto Mono',monospace;font-size:13px;color:rgba(26,14,4,0.3);}
+.rcards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;}
+.rc{background:#fff;border:1px solid rgba(255,153,51,0.12);border-top:2px solid #FF9933;border-radius:10px;padding:22px 18px;opacity:0;transform:translateY(12px);transition:opacity 0.45s ease,transform 0.45s ease;}
+.rc.in{opacity:1;transform:none;}
+.rcl{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:0.1em;color:rgba(26,14,4,0.5);margin-bottom:10px;}
+.rcv{font-family:'Roboto Mono',monospace;font-size:26px;font-weight:500;line-height:1;letter-spacing:-0.02em;color:#1A0E04;}
+.rcs{font-family:'Noto Sans',sans-serif;font-size:11px;color:rgba(26,14,4,0.45);margin-top:5px;}
+.rchart{background:#fff;border:1px solid rgba(255,153,51,0.1);border-radius:12px;padding:24px;opacity:0;transition:opacity 0.7s ease 0.3s;}
+.rchart.in{opacity:1;}
+.rct{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:0.12em;color:rgba(26,14,4,0.5);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.rct span{color:#FF9933;}
+svg.rsvg{width:100%;height:90px;overflow:visible;}
+.rpath{fill:none;stroke-width:2;stroke-linecap:round;stroke-dasharray:3000;stroke-dashoffset:3000;transition:stroke-dashoffset 2s ease;}
+.rpath.in{stroke-dashoffset:0;}
+.rfill{opacity:0;transition:opacity 0.9s ease 0.4s;}
+.rfill.in{opacity:1;}
+.rleg{display:flex;gap:20px;margin-top:12px;}
+.rl{font-family:'Roboto Mono',monospace;font-size:9px;color:rgba(26,14,4,0.55);display:flex;align-items:center;gap:6px;letter-spacing:0.06em;}
+.rld{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* ═══ S6: CTA — ORANGE bg ══════════════════════════ */
+#s6{background:#FF9933;}
+#s6 .cta-box{text-align:center;position:relative;z-index:2;}
+#s6 .ctag{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:0.2em;color:rgba(255,255,255,0.5);margin-bottom:20px;}
+#s6 .cth{font-family:'Rajdhani',sans-serif;font-size:180px;font-weight:700;color:#fff;letter-spacing:0.1em;line-height:1;}
+#s6 .crul{width:0;height:3px;background:rgba(255,255,255,0.35);margin:20px auto 28px;border-radius:2px;transition:width 0.8s ease;}
+#s6 .crul.in{width:360px;}
+#s6 .csub{font-family:'Noto Sans',sans-serif;font-size:22px;font-weight:300;color:rgba(255,255,255,0.65);margin-bottom:36px;line-height:1.6;}
+#s6 .cbtn{display:inline-flex;align-items:center;gap:12px;background:#fff;color:#FF9933;font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.08em;padding:18px 52px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.1);}
+#s6 .cfoot{position:absolute;bottom:52px;left:50%;transform:translateX(-50%);font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:0.14em;color:rgba(255,255,255,0.2);}
+</style>
+</head>
+<body>
+<div id="fov"></div>
+<div id="pgb"></div>
+<div id="dots"></div>
+<div id="skip" onclick="skip()">SKIP →</div>
+
+<div id="stage">
+
+  <!-- S1: ORANGE -->
+  <div class="scene" id="s1">
+    <div class="logo-text fu" id="lt">PRAJA</div>
+    <div class="logo-rule" id="lr"></div>
+    <div class="logo-sub fi" id="ls">Creator Intelligence Platform</div>
+  </div>
+
+  <!-- S2: WHITE -->
+  <div class="scene" id="s2">
+    <div class="eyebrow fi" id="l2">WHAT WE BUILT</div>
+    <div class="tline">
+      <span class="word" id="w0">Know</span>&nbsp;<span class="word" id="w1">what</span>&nbsp;<span class="word" id="w2">your</span>
+    </div>
+    <div class="tline">
+      <span class="word" id="w3">audience</span>&nbsp;<span class="word acc" id="w4">really</span>&nbsp;<span class="word" id="w5">thinks.</span>
+    </div>
+    <div class="tsub fi" id="t2s">
+      Praja analyzes any Instagram creator's comments, engagement quality, and audience — giving you the truth behind the numbers.
+    </div>
+  </div>
+
+  <!-- S3: WHITE -->
+  <div class="scene" id="s3">
+    <div class="s3e fi" id="l3">HOW IT WORKS</div>
+    <div class="s3h fu" id="hh">Three steps. Thirty seconds.</div>
+    <div class="steps">
+      <div class="scard" id="sc0"><div class="sn">01</div><div class="st">Enter a handle</div><div class="sd">Type any Instagram username. Praja fetches their latest 12 posts and full profile automatically — no login required.</div></div>
+      <div class="scard" id="sc1"><div class="sn">02</div><div class="st">AI classifies everything</div><div class="sd">Every comment scored across 6 dimensions: authenticity, bot likelihood, sentiment, language, type, and political lean.</div></div>
+      <div class="scard" id="sc2"><div class="sn">03</div><div class="st">See the full picture</div><div class="sd">Get engagement rate, genuine comment ratio, audience demographics, top hashtags, and a collaboration score — all in one place.</div></div>
+    </div>
+  </div>
+
+  <!-- S4: PALE TINT -->
+  <div class="scene" id="s4">
+    <div class="browser" id="brow">
+      <div class="bchrome">
+        <div class="bdot" style="background:#FF5F57;"></div>
+        <div class="bdot" style="background:#FEBC2E;"></div>
+        <div class="bdot" style="background:#28C840;"></div>
+        <div class="burl">praja.app</div>
+      </div>
+      <div>
+        <div class="anav"><div class="anav-logo">PRAJA</div><div class="anav-tag">CREATOR INTELLIGENCE</div></div>
+        <div class="acontent">
+          <div>
+            <div class="aey">// INSTAGRAM ANALYTICS PLATFORM</div>
+            <div class="ah">Decode what<br>actually<br><span class="ao">performs.</span></div>
+            <div class="ap">Enter any Instagram handle. Get engagement quality, comment authenticity, audience composition, and collaboration value in seconds.</div>
+          </div>
+          <div class="acard">
+            <div class="acard-lbl">ANALYZE A CREATOR</div>
+            <div class="asearch"><div class="aat">@</div><div class="ainp"><span id="atype"></span><span class="acur"></span></div></div>
+            <button class="abtn">Run Analysis →</button>
+            <div class="achips">
+              <div class="achip">@virat.kohli</div><div class="achip">@priyankachopra</div>
+              <div class="achip">@bhuvan.bam22</div><div class="achip">@carry.minati</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: WHITE -->
+  <div class="scene" id="s5">
+    <div class="results">
+      <div class="rhead fu" id="rh"><div class="rt">Results for</div><div class="rhandle">@virat.kohli</div></div>
+      <div class="rcards" id="rcards">
+        <div class="rc" data-d="0"><div class="rcl">AVG LIKES</div><div class="rcv">2.8M</div><div class="rcs">per post</div></div>
+        <div class="rc" data-d="70"><div class="rcl">AVG COMMENTS</div><div class="rcv">24.1K</div><div class="rcs">per post</div></div>
+        <div class="rc" data-d="140"><div class="rcl">AVG SAVES</div><div class="rcv">318K</div><div class="rcs">per post</div></div>
+        <div class="rc" data-d="210"><div class="rcl">AVG SHARES</div><div class="rcv">142K</div><div class="rcs">per post</div></div>
+        <div class="rc" data-d="280"><div class="rcl">ENGAGEMENT RATE</div><div class="rcv">8.34%</div><div class="rcs">excellent</div></div>
+        <div class="rc" data-d="350"><div class="rcl">GENUINE COMMENTS</div><div class="rcv">82.4%</div><div class="rcs">healthy</div></div>
+      </div>
+      <div class="rchart" id="rchart">
+        <div class="rct"><span>//</span> ENGAGEMENT TREND — LAST 12 POSTS</div>
+        <svg class="rsvg" viewBox="0 0 1400 90" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="rg1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF9933" stop-opacity="0.20"/>
+              <stop offset="100%" stop-color="#FF9933" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="rg2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#CC5200" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#CC5200" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path class="rfill" id="rf1" fill="url(#rg1)" d="M0,80 C120,65 250,40 380,30 S620,8 750,18 S1000,4 1150,12 S1350,2 1400,8 L1400,90 L0,90 Z"/>
+          <path class="rfill" id="rf2" fill="url(#rg2)" d="M0,86 C120,82 250,76 380,70 S620,60 750,54 S1000,46 1150,50 S1350,42 1400,46 L1400,90 L0,90 Z"/>
+          <path class="rpath" id="rp1" stroke="#FF9933" d="M0,80 C120,65 250,40 380,30 S620,8 750,18 S1000,4 1150,12 S1350,2 1400,8"/>
+          <path class="rpath" id="rp2" stroke="#CC5200" stroke-width="1.5" d="M0,86 C120,82 250,76 380,70 S620,60 750,54 S1000,46 1150,50 S1350,42 1400,46"/>
+          <path class="rpath" id="rp3" stroke="#F5A030" stroke-width="1.5" d="M0,89 C120,88 250,86 380,84 S620,81 750,79 S1000,74 1150,77 S1350,72 1400,74"/>
+        </svg>
+        <div class="rleg">
+          <div class="rl"><div class="rld" style="background:#FF9933;"></div>Likes</div>
+          <div class="rl"><div class="rld" style="background:#CC5200;"></div>Saves</div>
+          <div class="rl"><div class="rld" style="background:#F5A030;"></div>Comments</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: ORANGE -->
+  <div class="scene" id="s6">
+    <div class="cta-box">
+      <div class="ctag fi" id="ctag">// TRY IT FREE</div>
+      <div class="cth fu" id="cth">PRAJA</div>
+      <div class="crul" id="crul"></div>
+      <div class="csub fi" id="csub">The intelligence layer for creator analytics.</div>
+      <div class="cbtn fu" id="cbtn">Analyze a creator →</div>
+    </div>
+    <div class="cfoot fi" id="cfoot">CREATOR INTELLIGENCE PLATFORM · 2026</div>
+  </div>
+
+</div>
+
+<script>
+function scaleStage(){
+  const s=document.getElementById('stage');
+  const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+  s.style.transform=`scale(${f})`;
+  s.style.left=`${(window.innerWidth-1920*f)/2}px`;
+  s.style.top=`${(window.innerHeight-1080*f)/2}px`;
+  s.style.position='fixed';
+}
+scaleStage();window.addEventListener('resize',scaleStage);
+
+const SCENES=[
+  {id:'s1',dur:3800,orange:true},
+  {id:'s2',dur:4500,orange:false},
+  {id:'s3',dur:4800,orange:false},
+  {id:'s4',dur:4800,orange:false},
+  {id:'s5',dur:5500,orange:false},
+  {id:'s6',dur:6000,orange:true},
+];
+let cur=-1,nxt=null;
+const fov=document.getElementById('fov');
+const pgb=document.getElementById('pgb');
+
+const dotsEl=document.getElementById('dots');
+SCENES.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>go(i);dotsEl.appendChild(d);});
+
+const FADE_MS = 220; // overlay fade duration in ms
+
+function setFovTransition(ms){
+  fov.style.transition = `opacity ${ms}ms ease`;
+}
+
+function fadeOut(el,ms){ el.style.transition=`opacity ${ms}ms ease`; el.style.opacity='0'; }
+function fadeIn(el,ms){ el.style.transition=`opacity ${ms}ms ease`; el.style.opacity='1'; }
+
+function updateChrome(orange){
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.style.background=i===cur?(orange?'#fff':'#FF9933'):(orange?'rgba(255,255,255,0.3)':'rgba(26,14,4,0.18)');
+    d.style.width=i===cur?'22px':'6px';
+    d.style.borderRadius=i===cur?'3px':'50%';
+  });
+  const sk=document.getElementById('skip');
+  if(orange){sk.style.cssText='position:fixed;top:28px;right:40px;z-index:999;font-family:"Roboto Mono",monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;padding:6px 14px;border:1px solid rgba(255,255,255,0.25);border-radius:4px;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);transition:all 0.2s;';}
+  else{sk.style.cssText='position:fixed;top:28px;right:40px;z-index:999;font-family:"Roboto Mono",monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;padding:6px 14px;border:1px solid rgba(26,14,4,0.14);border-radius:4px;color:rgba(26,14,4,0.35);background:rgba(255,255,255,0.8);transition:all 0.2s;';}
+  pgb.style.background=orange?'rgba(255,255,255,0.55)':'#FF9933';
+}
+
+function activateScene(n){
+  const isOrange=SCENES[n].orange;
+  // Swap scenes
+  if(cur>=0){
+    const old=document.getElementById(SCENES[cur].id);
+    old.classList.remove('active');
+    old.style.opacity='0';
+    resetScene(cur);
+  }
+  cur=n;
+  const el=document.getElementById(SCENES[n].id);
+  el.classList.add('active');
+  el.style.opacity='0'; // start invisible, then fade in
+  updateChrome(isOrange);
+  initScene(n);
+  // Fade new scene in
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.transition=`opacity ${FADE_MS+80}ms ease`; el.style.opacity='1'; }));
+  // Progress bar
+  pgb.style.transition='none'; pgb.style.width='0%';
+  requestAnimationFrame(()=>{ pgb.style.transition=`width ${SCENES[n].dur}ms linear`; pgb.style.width='100%'; });
+  // Schedule next
+  const next=n<SCENES.length-1?n+1:0;
+  nxt=setTimeout(()=>go(next),SCENES[n].dur);
+}
+
+function go(n){
+  clearTimeout(nxt);
+  const isOrange=SCENES[n].orange;
+  const prevOrange=cur>=0?SCENES[cur].orange:isOrange;
+  const colorSwitch=isOrange!==prevOrange;
+
+  if(colorSwitch){
+    // STEP 1: fade overlay IN (force reflow between setting bg and opacity)
+    fov.style.transition='none';
+    fov.style.background=isOrange?'#FF9933':'#fff';
+    fov.style.opacity='0';
+    fov.getBoundingClientRect(); // force reflow — guarantees transition fires
+    setFovTransition(FADE_MS);
+    fov.style.opacity='1';
+
+    // STEP 2: once fully opaque → swap scene → fade overlay OUT
+    setTimeout(()=>{
+      activateScene(n);
+      // brief hold at opaque, then fade out
+      setTimeout(()=>{
+        setFovTransition(FADE_MS+60);
+        fov.style.opacity='0';
+      },40);
+    }, FADE_MS+10);
+  } else {
+    // Same color: direct crossfade, no overlay
+    activateScene(n);
+  }
+}
+
+function skip(){if(cur<SCENES.length-1)go(cur+1); else go(0);}
+
+function typeIn(el,text,speed){
+  el.textContent='';let i=0;
+  function s(){if(i<text.length){el.textContent+=text[i++];setTimeout(s,speed);}}
+  setTimeout(s,80);
+}
+
+function resetScene(n){
+  document.getElementById(SCENES[n].id).querySelectorAll('.in').forEach(e=>e.classList.remove('in'));
+  if(n===0)document.getElementById('lr').classList.remove('in');
+  if(n===5)document.getElementById('crul').classList.remove('in');
+  if(n===3){const b=document.getElementById('brow');b.classList.remove('in');}
+}
+
+function ini(id,d=0){setTimeout(()=>{const e=document.getElementById(id);if(e)e.classList.add('in');},d);}
+
+function initScene(n){
+  switch(n){
+    case 0:
+      ini('lt',150);
+      setTimeout(()=>document.getElementById('lr').classList.add('in'),550);
+      ini('ls',900);
+      break;
+    case 1:
+      ini('l2',100);
+      ['w0','w1','w2','w3','w4','w5'].forEach((id,i)=>ini(id,250+i*180));
+      ini('t2s',1500);
+      break;
+    case 2:
+      ini('l3',100);ini('hh',200);
+      ['sc0','sc1','sc2'].forEach((id,i)=>ini(id,500+i*200));
+      break;
+    case 3:
+      setTimeout(()=>{
+        document.getElementById('brow').classList.add('in');
+        setTimeout(()=>typeIn(document.getElementById('atype'),'virat.kohli',80),900);
+      },200);
+      break;
+    case 4:
+      ini('rh',150);
+      document.querySelectorAll('#rcards .rc').forEach(c=>setTimeout(()=>c.classList.add('in'),200+parseInt(c.dataset.d)));
+      setTimeout(()=>{
+        document.getElementById('rchart').classList.add('in');
+        setTimeout(()=>{
+          document.querySelectorAll('.rpath').forEach(p=>p.classList.add('in'));
+          document.querySelectorAll('.rfill').forEach(f=>f.classList.add('in'));
+        },200);
+      },600);
+      break;
+    case 5:
+      ini('ctag',100);ini('cth',250);
+      setTimeout(()=>document.getElementById('crul').classList.add('in'),500);
+      ini('csub',700);ini('cbtn',900);ini('cfoot',1200);
+      break;
+  }
+}
+
+window.addEventListener('load',()=>{
+  // Small delay so fonts are rendered before first scene animates
+  setTimeout(()=>go(0), 100);
+});
+</script>
+</body>
+</html>

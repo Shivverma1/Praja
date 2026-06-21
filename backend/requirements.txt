@@ -1,0 +1,13 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+httpx>=0.27.0
+python-dotenv>=1.0.0
+aiofiles>=23.2.0
+vaderSentiment>=3.3.2
+langdetect>=1.0.9
+# google-generativeai is optional — needed only for live Gemini classification
+# Install separately if you have disk space: pip install google-generativeai
